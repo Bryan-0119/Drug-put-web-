@@ -172,36 +172,53 @@ export default function App() {
     <div className="min-h-screen bg-blue-50 p-4 md:p-8 font-sans print:bg-white print:p-0">
       <style>
         {`
-          /* 絕對鎖死 A6 尺寸與邊界 */
+          /* 終極列印尺寸鎖死設定 */
           @media print {
             @page { 
-              size: 105mm 148mm; /* A6 實體紙張尺寸 */
-              margin: 0mm;       /* 強制瀏覽器邊距歸零 */
+              size: A6 portrait; /* 明確指定瀏覽器紙張為 A6 直式 */
+              margin: 0;         /* 強制拔除瀏覽器預設白邊 */
             }
             html, body {
-              width: 105mm;
-              height: 148mm;
-              margin: 0;
-              padding: 0;
-              background: white;
+              width: 105mm !important;
+              height: 148mm !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background-color: white !important;
+              overflow: hidden !important;
             }
             body { 
               -webkit-print-color-adjust: exact; 
               print-color-adjust: exact; 
             }
+            
+            /* 強制將收據抽離原始網頁結構，定位在最上層左上角 */
+            .receipt-print-zone {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 105mm !important;
+              height: 148mm !important;
+              padding: 4mm !important; /* 保留安全內邊距，防印表機吃字 */
+              margin: 0 !important;
+              background: white !important;
+              z-index: 9999 !important;
+              box-sizing: border-box !important;
+              border: none !important;
+              box-shadow: none !important;
+            }
           }
         `}
       </style>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden print:shadow-none print:rounded-none">
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden print:shadow-none print:rounded-none print:border-none print:bg-transparent">
         
         {/* Header - 使用深海藍 */}
-        <div className={`bg-blue-900 text-white p-6 flex justify-between items-center print:bg-white print:text-black print:border-b-2 print:border-blue-900 print:pb-4 ${showReceiptPreview ? 'hidden print:flex' : ''}`}>
+        <div className={`bg-blue-900 text-white p-6 flex justify-between items-center print:hidden ${showReceiptPreview ? 'hidden' : ''}`}>
           <div className="flex items-center gap-3">
             <img 
               src="/澤仁logo.png" 
               alt="澤仁logo" 
-              className="h-9 w-auto object-contain print:h-8" 
+              className="h-9 w-auto object-contain" 
               onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
             />
             <h1 className="text-2xl font-bold tracking-wider">呈安藥局-藥品寄庫系統</h1>
@@ -238,7 +255,7 @@ export default function App() {
           <button className={`flex-1 py-4 text-lg font-medium flex justify-center items-center gap-2 transition-colors ${activeTab === 'withdraw' ? 'text-blue-900 border-b-2 border-blue-900 bg-blue-50' : 'text-gray-500 hover:text-blue-900 hover:bg-gray-50'}`} onClick={() => setActiveTab('withdraw')}><MinusCircle size={20} /> 提領藥品</button>
         </div>
 
-        <div className="p-6 md:p-8 relative min-h-[400px]">
+        <div className="p-6 md:p-8 relative min-h-[400px] print:p-0">
           {loading && (
             <div className="absolute inset-0 bg-white/70 flex justify-center items-center z-10 print:hidden">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
@@ -246,7 +263,7 @@ export default function App() {
           )}
 
           {activeTab === 'deposit' && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in print:m-0 print:p-0">
               <form onSubmit={handleDepositSubmit} className={`space-y-6 print:hidden ${showReceiptPreview ? 'hidden' : 'block'}`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
@@ -293,9 +310,9 @@ export default function App() {
                 </div>
               </form>
 
-              {/* 單聯排版：鎖死 A6 精準尺寸 */}
+              {/* 單聯排版：套用 receipt-print-zone 進行絕對列印鎖定 */}
               <div className={`${showReceiptPreview ? 'block mt-4' : 'hidden print:block'}`}>
-                <div className="bg-white mx-auto border border-gray-300 print:border-none print:w-[105mm] print:h-[148mm] w-[105mm] h-[148mm] p-4 print:p-[5mm] flex flex-col justify-start overflow-hidden shadow-sm print:shadow-none box-border relative">
+                <div className="receipt-print-zone bg-white mx-auto border border-gray-300 w-[105mm] h-[148mm] p-4 flex flex-col justify-start overflow-hidden shadow-sm relative">
                   
                   <h2 className="text-base md:text-lg font-bold text-center mb-3 pb-1 border-b border-gray-300 text-black mt-1">呈安藥局-藥品寄庫證明聯</h2>
                   
@@ -342,7 +359,7 @@ export default function App() {
 
                   <div className="mt-auto pt-2 border-t border-gray-300 text-[9px] text-gray-700 leading-tight pb-1">
                     <div className="font-bold mb-1 text-black">注意事項：</div>
-                    <ol className="list-decimal pl-3 space-y-1">
+                    <ol className="list-decimal pl-3 space-y-1 m-0">
                       <li>本單據請妥善保管，不慎遺失者領取剩餘藥物時需於官方LINE上留下領藥證明以避免後續爭議</li>
                       <li>寄庫剩餘藥品領取完畢後，本單據會收回</li>
                     </ol>
@@ -360,8 +377,8 @@ export default function App() {
           )}
 
           {activeTab === 'withdraw' && (
-            <div className="space-y-6 animate-fade-in">
-              <form onSubmit={handleSearch} className="bg-gray-50 p-6 rounded-xl border border-gray-200 print:hidden shadow-sm">
+            <div className="space-y-6 animate-fade-in print:hidden">
+              <form onSubmit={handleSearch} className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
                 <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2"><Search size={18}/> 搜尋寄庫資料 (可單欄搜尋或組合搜尋)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex flex-col gap-1">
