@@ -172,9 +172,23 @@ export default function App() {
     <div className="min-h-screen bg-blue-50 p-4 md:p-8 font-sans print:bg-white print:p-0">
       <style>
         {`
+          /* 絕對鎖死 A6 尺寸與邊界 */
           @media print {
-            @page { size: A6 portrait; margin: 4mm; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { 
+              size: 105mm 148mm; /* A6 實體紙張尺寸 */
+              margin: 0mm;       /* 強制瀏覽器邊距歸零 */
+            }
+            html, body {
+              width: 105mm;
+              height: 148mm;
+              margin: 0;
+              padding: 0;
+              background: white;
+            }
+            body { 
+              -webkit-print-color-adjust: exact; 
+              print-color-adjust: exact; 
+            }
           }
         `}
       </style>
@@ -184,9 +198,8 @@ export default function App() {
         {/* Header - 使用深海藍 */}
         <div className={`bg-blue-900 text-white p-6 flex justify-between items-center print:bg-white print:text-black print:border-b-2 print:border-blue-900 print:pb-4 ${showReceiptPreview ? 'hidden print:flex' : ''}`}>
           <div className="flex items-center gap-3">
-            {/* 替換為上傳的 Logo */}
             <img 
-              src="./澤仁logo.png" 
+              src="/澤仁logo.png" 
               alt="澤仁logo" 
               className="h-9 w-auto object-contain print:h-8" 
               onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
@@ -242,7 +255,6 @@ export default function App() {
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-gray-700 font-medium">生日</label>
-                    {/* 生日改為 Text Input 並套用自動格式化 */}
                     <input 
                       type="text" 
                       placeholder="YYYY-MM-DD"
@@ -281,15 +293,14 @@ export default function App() {
                 </div>
               </form>
 
-              {/* 單聯排版：藥品寄庫證明聯 */}
+              {/* 單聯排版：鎖死 A6 精準尺寸 */}
               <div className={`${showReceiptPreview ? 'block mt-4' : 'hidden print:block'}`}>
-                <div className="bg-white print:w-full print:h-[140mm] print:p-0 mx-auto border border-gray-300 print:border-none p-3 md:p-4 w-full max-w-[105mm] h-[148mm] flex flex-col justify-start overflow-hidden shadow-sm print:shadow-none relative">
+                <div className="bg-white mx-auto border border-gray-300 print:border-none print:w-[105mm] print:h-[148mm] w-[105mm] h-[148mm] p-4 print:p-[5mm] flex flex-col justify-start overflow-hidden shadow-sm print:shadow-none box-border relative">
                   
                   <h2 className="text-base md:text-lg font-bold text-center mb-3 pb-1 border-b border-gray-300 text-black mt-1">呈安藥局-藥品寄庫證明聯</h2>
                   
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-[11px] mb-2.5 text-black">
                     <div className="flex items-end gap-1"><span className="text-gray-600 whitespace-nowrap">姓名:</span><strong className="border-b border-gray-300 flex-1 truncate">{depositForm.name}</strong></div>
-                    {/* 病歷號移除了 text-center，自動靠左對齊 */}
                     <div className="flex items-end gap-1"><span className="text-gray-600 whitespace-nowrap">病歷號:</span><strong className="border-b border-gray-300 flex-1 truncate font-mono">{depositForm.recordNo}</strong></div>
                     <div className="flex items-end gap-1"><span className="text-gray-600 whitespace-nowrap">日期:</span><strong className="border-b border-gray-300 flex-1">{depositForm.date}</strong></div>
                     <div className="flex items-end gap-1"><span className="text-gray-600 whitespace-nowrap">生日:</span><strong className="border-b border-gray-300 flex-1">{depositForm.birthday}</strong></div>
@@ -300,7 +311,6 @@ export default function App() {
                     <strong className="text-black truncate ml-1 text-[11px]">{depositForm.item} × {depositForm.quantity}{depositForm.unit}</strong>
                   </div>
 
-                  {/* 表格大小、高度(h-[26px])、間距完全不變 */}
                   <div className="mb-2">
                     <table className="w-full text-[10px] border-collapse border border-black text-center table-fixed text-black">
                       <thead>
@@ -324,14 +334,12 @@ export default function App() {
                     </table>
                   </div>
                   
-                  {/* 防擠壓置中藥師簽章 */}
                   <div className="flex justify-end px-2 pb-1">
                     <div className="border border-dashed border-gray-300 shrink-0 w-12 h-12 flex items-center justify-center">
                       <span className="text-[10px] font-bold leading-tight text-gray-300 text-center block">藥師<br/>簽章</span>
                     </div>
                   </div>
 
-                  {/* 壓在最底部的注意事項 */}
                   <div className="mt-auto pt-2 border-t border-gray-300 text-[9px] text-gray-700 leading-tight pb-1">
                     <div className="font-bold mb-1 text-black">注意事項：</div>
                     <ol className="list-decimal pl-3 space-y-1">
@@ -366,7 +374,6 @@ export default function App() {
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-gray-600">生日</label>
-                    {/* 生日改為 Text Input 並套用自動格式化 */}
                     <input 
                       type="text" 
                       placeholder="YYYY-MM-DD"
